@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from random import choice
 from typing import List
 
@@ -77,12 +78,12 @@ class ConnectionManager:
         
         return None
 
+@dataclass
 class Room:
-    def __init__(self, name, room_id):
-        self.name = name
-        self.room_id = room_id
-        self.people: List[WebSocket] = []
-        self.owner: WebSocket = None
+    name: str
+    room_id: str
+    people: List[WebSocket] = field(default_factory=list)
+    owner: WebSocket = None
     
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -104,7 +105,6 @@ async def get(request: Request):
 
 @app.websocket("/ws/{room_id}/{client_id}/{joining}")
 async def make_room(websocket: WebSocket, room_id: str, client_id: int, joining: bool):
-    print(manager.rooms)
     find = await manager.locate_room(room_id=room_id)
     if not find:
         if joining:
@@ -130,6 +130,14 @@ async def make_room(websocket: WebSocket, room_id: str, client_id: int, joining:
             find = room
     
     elif websocket not in find.people:
+        for i in manager.rooms:
+            if websocket in i.people:
+                print("removing", i.name)
+                if len(i.people) > 1:
+                    i.disconnect(websocket)
+                    
+                else:
+                    manager.rooms.remove(i)
         if joining:
             await manager.connect(websocket)
             await manager.send_personal_message("found", websocket)
