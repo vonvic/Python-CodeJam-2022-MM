@@ -21,9 +21,10 @@ class User:
     connection: WebSocket
 
     async def send_message(self, message: str):
-        self.connection.send_json(
+        await self.connection.send_json(
             {
                 "type": "message",
+                "username": self.name,
                 "content": message
             }
         )
@@ -43,7 +44,8 @@ class Room:
         await websocket.send_json(
             {
                 "type": "room_join_success",
-                "room_id": self.room_id
+                "room_id": self.room_id,
+                "username": user_data["name"]
             }
         )
 
@@ -58,11 +60,13 @@ class Room:
         self.users.append(User(name=user_data["name"], id=user_data["id"], current_room=self, connection=websocket))
     
     async def disconnect(self, websocket: WebSocket):
-        self.users.remove(list(filter(lambda x: x.client == websocket.client, self.users))[0])
+        user_to_remove: User = list(filter(lambda x: x.connection.client == websocket.client, self.users))[0]
+        self.users.remove(user_to_remove)
         
         await self.send_all(
             {
                 "type": "room_disconnect_success",
+                "username": user_to_remove.name,
                 "room_id": self.room_id,
                 "time": datetime.utcnow().timestamp()
             }
@@ -93,13 +97,14 @@ manager = ConnectionManager()
 # async def home(request: Request):
 #     return templates.TemplateResponse("index2.html", {"request": request})
 
-@app.get("/ws/{room_id}/{client_id}")
+@app.websocket("/ws/{room_id}/{client_id}")
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
-    room = manager.locate_room(room_id=room_id)
+    room = await manager.locate_room(room_id=room_id)
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
         manager.rooms.append(room)
-        await room.connect(websocket)
+    
+    await room.connect(websocket)
     
     try:
         while True:
