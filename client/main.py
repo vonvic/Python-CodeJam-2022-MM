@@ -169,7 +169,7 @@ if __name__ == "__main__":
     grid.setColumnStretch(2, 0)
 
     header = QtWidgets.QHBoxLayout()
-    header.addWidget(QtWidgets.QLabel("Dontsnoo"))
+    header.addWidget(QtWidgets.QLabel("Dontsnoop"))
     header.addWidget(QtWidgets.QLabel(f"Logged in as: {name}"))
 
     grid.addLayout(header, 0, 0, 1, 2)
@@ -177,11 +177,11 @@ if __name__ == "__main__":
     msgs = QtWidgets.QPlainTextEdit()
     msgs.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
-    grid.addWidget(msgs, 2, 2)
+    grid.addWidget(msgs, 2, 0)
 
     uno_canvas = QtGui.QPainter()
 
-    grid.addWidget(QtWidgets.QPlainTextEdit("uno QPainter here"), 1, 0, 3, 2)
+    # grid.addWidget(QtWidgets.QPlainTextEdit("uno QPainter here"), 1, 0, 3, 2)
 
     input_area = QtWidgets.QHBoxLayout()
     input_text = QtWidgets.QLineEdit()
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     input_area.addWidget(input_text)
     input_area.addWidget(send_button)
 
-    grid.addLayout(input_area, 3, 2)
+    grid.addLayout(input_area, 3, 0)
 
     room_and_users_info_box = QtWidgets.QVBoxLayout()
     room_info_layout = QtWidgets.QVBoxLayout()
@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
     room_and_users_info_box.addLayout(room_info_layout)
 
-    grid.addLayout(room_and_users_info_box, 1, 2)
+    grid.addLayout(room_and_users_info_box, 1, 0)
 
     window.setLayout(grid)
     window.show()

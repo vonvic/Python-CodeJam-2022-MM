@@ -5,6 +5,9 @@ def scramble_sentence(sentence: str) -> str:
     This function does not treat internal punctuation specially,
     and will replace non-space whitespace as space
     """
+    if sentence == '':
+        return ''
+
     if not sentence[len(sentence) - 1].isalnum():
         end_punct = sentence[len(sentence) - 1]
         sentence = sentence[:-1]
