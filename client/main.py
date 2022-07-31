@@ -21,7 +21,12 @@ def check_for_messages():
         if ws is not None:
             data = json.loads(ws.recv())
             user = data["username"]
-            if data["type"] == "user_join" and user != name:
+            
+            if data["type"] == "room_join_success":
+                room_info_group.setTitle(f"Connected to: {join_room_input.text()}")
+                msgs.insertPlainText("You have joined the room!\n")
+            
+            elif data["type"] == "user_join" and user != name:
                 msgs.insertPlainText(f"{user} has joined the room!\n")
             
             elif data["type"] == "room_disconnect_success" and user != name:
@@ -34,12 +39,7 @@ def check_for_messages():
 def join_room():
     global ws
     ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}/{client_id}")
-    ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))
-    
-    data = json.loads(ws.recv())
-    if data["type"] == "room_join_success":
-        room_info_group.setTitle(f"Connected to: {join_room_input.text()}")
-        msgs.insertPlainText("You have joined the room!")
+    ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))    
 
 def set_name():
     global name
