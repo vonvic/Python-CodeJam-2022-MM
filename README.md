@@ -134,7 +134,7 @@ Once connected to a room, other users can join the same room with the same ID. F
 <!-- Members -->
 ## Team Members
 * [Von Vic Cayas](https://github.com/vonvic)
-* [Jaswanth](https://github.com/tyush)
+* [tyush](https://github.com/tyush)
 * [Firestar](https://github.com/FirestarAD)
 * [Jose David Florez Ruiz](https://github.com/J0FR)
 * [Max McCready](https://github.com/Bluesquare99)
