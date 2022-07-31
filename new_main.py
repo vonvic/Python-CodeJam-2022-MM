@@ -5,6 +5,8 @@ from typing import Dict, List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 
+from utils import utils
+
 app = FastAPI()
 
 templates = Jinja2Templates(directory="static")
@@ -112,11 +114,12 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+
 @app.websocket("/ws/{room_id}/{client_id}")
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
     """TODO: (firestar): write docstring"""
     room = await manager.locate_room(room_id=room_id)
-    
+
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
         manager.rooms.append(room)
@@ -127,6 +130,7 @@ async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
         while True:
             data = await websocket.receive_json()
             if data["type"] == "message_sent":
+                data["content"] = utils.scramble_sentence(data["content"])
                 room.messages.append({"user": data["username"], "content": data["content"]})
                 await room.send_all(data)
 
