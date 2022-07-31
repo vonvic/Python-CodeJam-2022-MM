@@ -26,22 +26,14 @@
 <br />
 <div align="center">
   <a href="https://github.com/vonvic/Python-CodeJam-2022-MM">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Don't Snoop On Me</h3>
+<h2 align="center">Don't Snoop On Me</h3>
 
   <p align="center">
-    project_description
-    <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
-    <br />
+    A chat app with purposeful misspellings.
     <br />
     <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
   </p>
 </div>
 
@@ -125,9 +117,15 @@ python3 client/main.py
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+After the server and a client has been launched, the client application will present a prompt to enter a name:
+[![Initial][intro-img]
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+After entering a name and clicking continue, you will then be brought to a new screen. This screen will prompt you to enter a room before you can send any messages. The room ID can be anything, but will be converted to contain no spaces.
+[![Initial Main Room][main-empty-img]
+
+Once connected to a room, other users can join the same room with the same ID. From there, you can send each other messages, where received messages will automatically be misspelled.
+[![Active Main Room][main-active-img]
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -135,12 +133,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <!-- Members -->
 ## Team Members
-* vonvictorino#8768
-* pyratic#2077
-* Firestar#1111
-* J0FR#9964
-* pancake#8140
-* G0muG0mu#6621
+* [Von Vic Cayas](https://github.com/vonvic)
+* [Jaswanth](https://github.com/tyush)
+* [Firestar](https://github.com/FirestarAD)
+* [Jose David Florez Ruiz](https://github.com/J0FR)
+* [Max McCready](https://github.com/Bluesquare99)
+* [Jaswanth](https://github.com/jasgared)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -167,7 +165,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [license-url]: https://github.com/vonvic/Python-CodeJam-2022-MM/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: images/samples/connected-chat-room.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
@@ -189,3 +187,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [PyQt6-url]: https://pypi.org/project/PyQt6/
 [FastAPI-shield]: https://img.shields.io/badge/fastpi-009485?style=for-the-badge
 [FastAPI-url]: https://fastapi.tiangolo.com/git
+[intro-img]: images/samples/initial.png
+[main-empty-img]: images/samples/before-connected.png
+[main-active-img]: images/samples/connected-chat-room.png
