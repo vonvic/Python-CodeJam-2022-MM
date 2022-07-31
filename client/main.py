@@ -1,11 +1,12 @@
 import json
 import threading
 import time
+from queue import Queue
 
 import PyQt6.QtGui as QtGui
 import PyQt6.QtWidgets as QtWidgets
 import websocket
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 
 
 def communicate():
@@ -35,38 +36,38 @@ def communicate():
 
 def check_for_messages():
     """Constantly checks for messages received from the server and displays the message once one is received."""
-    global current_room, user_list
+    global current_room, user_list, new_msgs_queue, room_info_queue
     while True:
         if ws is not None:
             try:
                 data = json.loads(ws.recv())
-            
-            except:
+
+            except Exception:
                 continue
 
             user = data["username"]
 
             if data["type"] == "room_join_success":
-                room_info_group.setTitle(f"Connected to: {join_room_input.text()}")
-                msgs.insertPlainText("You have joined the room!\n")
+                room_info_queue.put(f"Connected to: {join_room_input.text()}")
+                new_msgs_queue.put("You have joined the room!\n")
                 join_room_input.setText("")
                 current_room = data["room_id"]
                 user_list = data["users"]
-                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)} other users")
-            
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} other users")
+
             elif data["type"] == "user_join" and user != name:
-                msgs.insertPlainText(f"{user} has joined the room!\n")
+                new_msgs_queue.put(f"{user} has joined the room!\n")
                 user_list = data["users"]
-                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)} other users")
-            
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} other users")
+
             elif data["type"] == "room_disconnect_success" and user != name:
-                msgs.insertPlainText(f"{user} has left the room\n")
+                new_msgs_queue.put(f"{user} has left the room\n")
                 user_list = data["users"]
-                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)-1} other users")
-            
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)-1} other users")
+
             elif data["type"] == "message_sent" and user != name:
                 message = data["content"]
-                msgs.insertPlainText(f"{user}: {message}\n")
+                new_msgs_queue.put(f"{user}: {message}\n")
 
 
 def join_room():
@@ -113,12 +114,35 @@ def set_name():
     confirm_button.hide()
     app.quit()
 
+
 def show_connected_users():
+    """Displays the number of connected users."""
     global user_list
     alert_box = QtWidgets.QMessageBox()
     alert_box.setText("Users\n" + '\n'.join(user_list))
     alert_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
     alert_box.exec()
+
+
+def update_messages():
+    """Inserts new messages from the messages queue."""
+    global new_msgs_queue
+    while not new_msgs_queue.empty():
+        msgs.insertPlainText(new_msgs_queue.get())
+
+
+def update_room_info():
+    """Updates the room title from the queue."""
+    global room_info_queue
+    while not room_info_queue.empty():
+        room_info_group.setTitle(room_info_queue.get())
+
+
+def update_room():
+    """Updates any new messages or room info updates to the chat book and room info text."""
+    update_messages()
+    update_room_info()
+
 
 if __name__ == "__main__":
     # Getting username
@@ -202,6 +226,14 @@ if __name__ == "__main__":
     ws = None
     current_room = None
     user_list = []
+
+    new_msgs_queue = Queue()
+    room_info_queue = Queue()
+
+    update_room_timer = QTimer()
+    update_room_timer.setInterval(100)
+    update_room_timer.timeout.connect(update_room)
+    update_room_timer.start()
 
     thread = threading.Thread(target=check_for_messages)
     thread.daemon = True
