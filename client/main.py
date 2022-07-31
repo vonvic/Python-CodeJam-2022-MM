@@ -53,17 +53,17 @@ def check_for_messages():
                 join_room_input.setText("")
                 current_room = data["room_id"]
                 user_list = data["users"]
-                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} other users")
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} users")
 
             elif data["type"] == "user_join" and user != name:
                 new_msgs_queue.put(f"{user} has joined the room!\n")
                 user_list = data["users"]
-                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} other users")
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} users")
 
             elif data["type"] == "room_disconnect_success" and user != name:
                 new_msgs_queue.put(f"{user} has left the room\n")
                 user_list = data["users"]
-                room_info_queue.put(f"Connected to {current_room} with {len(user_list)-1} other users")
+                room_info_queue.put(f"Connected to {current_room} with {len(user_list)} users")
 
             elif data["type"] == "message_sent" and user != name:
                 message = data["content"]
@@ -87,7 +87,7 @@ def join_room():
             alert_box.exec()
             return
 
-        ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}/{client_id}")
+        ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}")
         ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))
 
     else:
