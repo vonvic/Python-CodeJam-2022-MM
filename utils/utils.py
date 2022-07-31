@@ -1,7 +1,6 @@
 def scramble_sentence(sentence: str) -> str:
     """
-    Return the given sentence with each word scrambled, preserving ending punctuation
-    and numbers.
+    Return the given sentence with each word scrambled, preserving ending punctuation and numbers.
 
     This function does not treat internal punctuation specially,
     and will replace non-space whitespace as space
@@ -24,6 +23,7 @@ def scramble_sentence(sentence: str) -> str:
 def scramble_word(word: str) -> str:
     """
     Scramble internal letters of a given string, ie
+
     tomato -> totmao
     or
     1984 -> 1894
@@ -35,8 +35,9 @@ def scramble_word(word: str) -> str:
 
 
 def scramble_str(s: str) -> str:
+    """Scrambles `s` except for the first and last letter."""
     from random import shuffle
 
-    l = list(s)
-    shuffle(l)
-    return "".join(l)
+    L = list(s)
+    shuffle(L)
+    return "".join(L)
