@@ -20,13 +20,9 @@ class User:
     current_room: "Room"
     connection: WebSocket
 
-    async def send_message(self, message: str):
+    async def send_message(self, message: object):
         await self.connection.send_json(
-            {
-                "type": "message",
-                "username": self.name,
-                "content": message
-            }
+            message
         )
 
 @dataclass
@@ -90,6 +86,14 @@ class ConnectionManager:
                 return i
         
         return None
+    
+    async def locate_user(self, client_id: int):
+        for i in self.rooms:
+            for user in i.users:
+                if client_id == user.id:
+                    return user
+        
+        return None
 
 manager = ConnectionManager()
 
@@ -100,6 +104,11 @@ manager = ConnectionManager()
 @app.websocket("/ws/{room_id}/{client_id}")
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
     room = await manager.locate_room(room_id=room_id)
+    user = await manager.locate_user(client_id=client_id)
+    
+    if user is not None and user.current_room != room:
+        await user.current_room.disconnect(user.connection)
+
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
         manager.rooms.append(room)
@@ -108,6 +117,7 @@ async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
     
     try:
         while True:
+            #await websocket.send_json({"type": "filler", "username": "None"})
             data = await websocket.receive_json()
             if data["type"] == "message_sent":
                 await room.send_all(data)
