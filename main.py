@@ -117,7 +117,7 @@ manager = ConnectionManager()
 
 @app.websocket("/ws/{room_id}/{client_id}")
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
-    """TODO: (firestar): write docstring"""
+    """Puts user into proper room and relays messages between the clients in the same room"""
     room = await manager.locate_room(room_id=room_id)
 
     if room is None:
