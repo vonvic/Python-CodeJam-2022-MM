@@ -108,7 +108,7 @@ if __name__ == "__main__":
     send_button.clicked.connect(lambda: communicate())
     join_room_submit.clicked.connect(lambda: join_room())
 
-    client_id = round(time.time())
+    client_id = str(round(time.time()))
     ws = None
 
     thread = threading.Thread(target=check_for_messages)
