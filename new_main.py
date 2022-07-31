@@ -45,7 +45,8 @@ class Room:
             {
                 "type": "room_join_success",
                 "room_id": self.room_id,
-                "username": user_data["name"]
+                "username": user_data["name"],
+                "users": [i.name for i in self.users]
             }
         )
 
@@ -53,7 +54,8 @@ class Room:
             {
                 "type": "user_join",
                 "username": user_data["name"],
-                "time": datetime.utcnow().timestamp()
+                "time": datetime.utcnow().timestamp(),
+                "users": [i.name for i in self.users]
             }
         )
 
@@ -69,7 +71,8 @@ class Room:
                 "type": "room_disconnect_success",
                 "username": user_to_remove.name,
                 "room_id": self.room_id,
-                "time": datetime.utcnow().timestamp()
+                "time": datetime.utcnow().timestamp(),
+                "users": [i.name for i in self.users]
             }
         )
 
@@ -121,9 +124,8 @@ async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
     room = await manager.locate_room(room_id=room_id)
     user = await manager.locate_user(client_id=client_id)
 
-    if user is not None and user.current_room != room:
-        await user.current_room.disconnect(user.connection)
-
+    print(manager.rooms)
+    
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
         manager.rooms.append(room)
@@ -134,7 +136,10 @@ async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
         while True:
             data = await websocket.receive_json()
             if data["type"] == "message_sent":
+                room.messages.append({"user": data["username"], "content": data["content"]})
                 await room.send_all(data)
 
     except WebSocketDisconnect:
         await room.disconnect(websocket)
+        if len(room.users) == 0:
+            manager.rooms.remove(room)

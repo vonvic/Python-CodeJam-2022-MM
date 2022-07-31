@@ -35,10 +35,15 @@ def communicate():
 
 def check_for_messages():
     """Constantly checks for messages received from the server and displays the message once one is received."""
-    global current_room
+    global current_room, user_list
     while True:
         if ws is not None:
-            data = json.loads(ws.recv())
+            try:
+                data = json.loads(ws.recv())
+            
+            except:
+                continue
+
             user = data["username"]
 
             if data["type"] == "room_join_success":
@@ -46,13 +51,19 @@ def check_for_messages():
                 msgs.insertPlainText("You have joined the room!\n")
                 join_room_input.setText("")
                 current_room = data["room_id"]
-
+                user_list = data["users"]
+                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)} other users")
+            
             elif data["type"] == "user_join" and user != name:
                 msgs.insertPlainText(f"{user} has joined the room!\n")
-
+                user_list = data["users"]
+                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)} other users")
+            
             elif data["type"] == "room_disconnect_success" and user != name:
                 msgs.insertPlainText(f"{user} has left the room\n")
-
+                user_list = data["users"]
+                room_info_group.setTitle(f"Connected to {current_room} with {len(user_list)-1} other users")
+            
             elif data["type"] == "message_sent" and user != name:
                 message = data["content"]
                 msgs.insertPlainText(f"{user}: {message}\n")
@@ -64,6 +75,16 @@ def join_room():
     if current_room != join_room_input.text():
         if ws is not None:
             ws.close()
+
+        join_room_input.setText(join_room_input.text().replace(" ", ""))
+
+        if len(join_room_input.text()) == 0:
+            alert_box = QtWidgets.QMessageBox()
+            alert_box.setText("You may not use spaces or empty characters for room codes!")
+            alert_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            alert_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+            alert_box.exec()
+            return
 
         ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}/{client_id}")
         ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))
@@ -80,6 +101,14 @@ def set_name():
     """Sets the username."""
     global name
     name = name_input.text()
+    if len(name.replace(" ", "")) == 0:
+        alert_box = QtWidgets.QMessageBox()
+        alert_box.setText("Please enter a valid name")
+        alert_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        alert_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+        alert_box.exec()
+        return
+
     name_input.hide()
     confirm_button.hide()
     app.quit()
@@ -136,7 +165,7 @@ if __name__ == "__main__":
     room_and_users_info_box = QtWidgets.QVBoxLayout()
     room_info_layout = QtWidgets.QVBoxLayout()
 
-    room_info_group = QtWidgets.QGroupBox("0 Users in Room 24110")
+    room_info_group = QtWidgets.QGroupBox("Not connected")
 
     join_room_box = QtWidgets.QHBoxLayout()
     join_room_label = QtWidgets.QLabel("Join Room:")
