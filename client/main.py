@@ -113,6 +113,12 @@ def set_name():
     confirm_button.hide()
     app.quit()
 
+def show_connected_users():
+    global user_list
+    alert_box = QtWidgets.QMessageBox()
+    alert_box.setText("Users\n" + '\n'.join(user_list))
+    alert_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+    alert_box.exec()
 
 if __name__ == "__main__":
     # Getting username
@@ -167,6 +173,8 @@ if __name__ == "__main__":
 
     room_info_group = QtWidgets.QGroupBox("Not connected")
 
+    show_users = QtWidgets.QPushButton("users")
+
     join_room_box = QtWidgets.QHBoxLayout()
     join_room_label = QtWidgets.QLabel("Join Room:")
     join_room_input = QtWidgets.QLineEdit()
@@ -177,6 +185,7 @@ if __name__ == "__main__":
 
     room_info_layout.addLayout(join_room_box)
     room_info_layout.addWidget(room_info_group)
+    room_info_layout.addWidget(show_users)
 
     room_and_users_info_box.addLayout(room_info_layout)
 
@@ -187,10 +196,12 @@ if __name__ == "__main__":
 
     send_button.clicked.connect(lambda: communicate())
     join_room_submit.clicked.connect(lambda: join_room())
+    show_users.clicked.connect(lambda: show_connected_users())
 
     client_id = str(round(time.time()))
     ws = None
     current_room = None
+    user_list = []
 
     thread = threading.Thread(target=check_for_messages)
     thread.daemon = True

@@ -40,7 +40,6 @@ class Room:
         await websocket.accept()
 
         user_data = await websocket.receive_json()
-        print(user_data)
         await websocket.send_json(
             {
                 "type": "room_join_success",
@@ -113,18 +112,10 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# @app.get("/")
-# async def home(request: Request):
-#     return templates.TemplateResponse("index2.html", {"request": request})
-
-
 @app.websocket("/ws/{room_id}/{client_id}")
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
-    """Todo (firestar): write docstring"""
+    """TODO: (firestar): write docstring"""
     room = await manager.locate_room(room_id=room_id)
-    user = await manager.locate_user(client_id=client_id)
-
-    print(manager.rooms)
     
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
