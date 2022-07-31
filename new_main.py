@@ -19,14 +19,10 @@ class User:
     current_room: "Room"
     connection: WebSocket
 
-    async def send_message(self, message: str):
+    async def send_message(self, message: object):
         """Sends `message` to its connection."""
         await self.connection.send_json(
-            {
-                "type": "message",
-                "username": self.name,
-                "content": message
-            }
+            message
         )
 
 
@@ -102,6 +98,15 @@ class ConnectionManager:
 
         return None
 
+    async def locate_user(self, client_id: int):
+        """Returns the user with id `client_id`."""
+        for i in self.rooms:
+            for user in i.users:
+                if client_id == user.id:
+                    return user
+
+        return None
+
 
 manager = ConnectionManager()
 
@@ -114,6 +119,11 @@ manager = ConnectionManager()
 async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
     """Todo (firestar): write docstring"""
     room = await manager.locate_room(room_id=room_id)
+    user = await manager.locate_user(client_id=client_id)
+
+    if user is not None and user.current_room != room:
+        await user.current_room.disconnect(user.connection)
+
     if room is None:
         room = Room(room_id=room_id, users=[], messages=[])
         manager.rooms.append(room)

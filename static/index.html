@@ -144,15 +144,14 @@
             var client_id = Date.now()
             document.getElementById("client_id").textContent = "Logged in as: " + client_id;
             var ws = null; //new WebSocket(`ws://localhost:8000/ws/${client_id}`);
-            
+
             function makeid(length) {
                 var result           = '';
                 var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
                 var charactersLength = characters.length;
                 for ( var i = 0; i < length; i++ ) {
-                result += characters.charAt(Math.floor(Math.random() * 
-            charactersLength));
-            }
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
             return result;
             }
 

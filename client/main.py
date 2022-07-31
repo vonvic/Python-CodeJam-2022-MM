@@ -19,11 +19,23 @@ def communicate():
         return
 
     msgs.insertPlainText(f"{name}: {input_text.text()}\n")
+
+    ws.send(
+        json.dumps(
+            {
+                "type": "message_sent",
+                "username": name,
+                "content": input_text.text()
+            }
+        )
+    )
+
     input_text.setText("")
 
 
 def check_for_messages():
     """Constantly checks for messages received from the server and displays the message once one is received."""
+    global current_room
     while True:
         if ws is not None:
             data = json.loads(ws.recv())
@@ -32,14 +44,16 @@ def check_for_messages():
             if data["type"] == "room_join_success":
                 room_info_group.setTitle(f"Connected to: {join_room_input.text()}")
                 msgs.insertPlainText("You have joined the room!\n")
+                join_room_input.setText("")
+                current_room = data["room_id"]
 
-            elif data["type"] == "message" and data["content"]["type"] == "user_join":
-                msgs.insertPlainText(f"{data['content']['username']} has joined the room!\n")
+            elif data["type"] == "user_join" and user != name:
+                msgs.insertPlainText(f"{user} has joined the room!\n")
 
             elif data["type"] == "room_disconnect_success" and user != name:
                 msgs.insertPlainText(f"{user} has left the room\n")
 
-            elif data["type"] == "message" and user != name:
+            elif data["type"] == "message_sent" and user != name:
                 message = data["content"]
                 msgs.insertPlainText(f"{user}: {message}\n")
 
@@ -47,8 +61,19 @@ def check_for_messages():
 def join_room():
     """Joins a room at localhost."""
     global ws
-    ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}/{client_id}")
-    ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))
+    if current_room != join_room_input.text():
+        if ws is not None:
+            ws.close()
+
+        ws = websocket.create_connection(f"ws://localhost:8000/ws/{join_room_input.text()}/{client_id}")
+        ws.send(json.dumps({"type": "room_join", "room_id": join_room_input.text(), "name": name, "id": client_id}))
+
+    else:
+        alert_box = QtWidgets.QMessageBox()
+        alert_box.setText("You cannot join the same room!")
+        alert_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        alert_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+        alert_box.exec()
 
 
 def set_name():
@@ -136,6 +161,7 @@ if __name__ == "__main__":
 
     client_id = str(round(time.time()))
     ws = None
+    current_room = None
 
     thread = threading.Thread(target=check_for_messages)
     thread.daemon = True
