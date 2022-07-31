@@ -42,6 +42,9 @@ class Room:
         await websocket.accept()
 
         user_data = await websocket.receive_json()
+
+        self.users.append(User(name=user_data["name"], id=user_data["id"], current_room=self, connection=websocket))
+
         await websocket.send_json(
             {
                 "type": "room_join_success",
@@ -59,8 +62,6 @@ class Room:
                 "users": [i.name for i in self.users]
             }
         )
-
-        self.users.append(User(name=user_data["name"], id=user_data["id"], current_room=self, connection=websocket))
 
     async def disconnect(self, websocket: WebSocket):
         """Removes the user defined in `websocket` from the room."""
@@ -115,8 +116,8 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@app.websocket("/ws/{room_id}/{client_id}")
-async def chat_room(websocket: WebSocket, room_id: str, client_id: str):
+@app.websocket("/ws/{room_id}")
+async def chat_room(websocket: WebSocket, room_id: str):
     """Puts user into proper room and relays messages between the clients in the same room"""
     room = await manager.locate_room(room_id=room_id)
 
