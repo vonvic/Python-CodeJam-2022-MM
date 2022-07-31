@@ -1,0 +1,16 @@
+#input-box {
+    position: absolute;
+    bottom: 0;
+}
+
+#msg-box {
+    height: 80vh;
+    width: fill;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-wrap: normal;
+}
+
+.window {
+    margin-bottom: 3em;
+}
