@@ -33,7 +33,7 @@
   <p align="center">
     A chat app with purposeful misspellings.
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://youtu.be/SuX59Oc7wz8">View Demo</a>
   </p>
 </div>
 
